@@ -81,7 +81,7 @@ def msgCallback(update, context):
 
 def error(update, context):
     """Log Errors caused by Updates."""
-    if 'Message is not modified' in context.error:
+    if 'Message is not modified' in str(context.error):
     	pass
     else:
     	logging.warning('Update "%s" caused error "%s" of type "%s"', update, context.error)
