@@ -40,8 +40,11 @@ def get_data():
 	return data['response']
 
 def update_pages(*args):
+	logging.info("[INFO] Getting new data...")
 	data = get_data()
+	logging.info("[INFO] New data successfully recieved!")
 
+	logging.info("[INFO] Updating old pages...")
 	data = sorted(data, key=lambda k: k['cases']['active'], reverse=True)
 	
 	pages = []

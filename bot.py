@@ -18,7 +18,7 @@ dispatcher = updater.dispatcher
 
 jobQ = JobQueue()
 jobQ.set_dispatcher(dispatcher)
-jobQ.run_repeating(update_pages, interval=54000, first=0)
+jobQ.run_repeating(update_pages, interval=1800, first=0)
 jobQ.start()
 
 def start(update, context):
@@ -81,7 +81,10 @@ def msgCallback(update, context):
 
 def error(update, context):
     """Log Errors caused by Updates."""
-    logging.warning('Update "%s" caused error "%s"', update, context.error)
+    if 'Message is not modified' in context.error:
+    	pass
+    else:
+    	logging.warning('Update "%s" caused error "%s" of type "%s"', update, context.error)
 
 start_handler = CommandHandler('start', start)
 dispatcher.add_handler(start_handler)
