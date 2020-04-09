@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from telegram.error import (TelegramError, Unauthorized, BadRequest, 
                             TimedOut, ChatMigrated, NetworkError)
 from telegram.ext import (Updater, CommandHandler, MessageHandler, 
@@ -25,13 +26,13 @@ def start(update, context):
 
 	keyboard = [
 				[
-					InlineKeyboardButton('<', callback_data="p 0"),
-					InlineKeyboardButton('0', callback_data="p 1"),
-					InlineKeyboardButton('>', callback_data="p 2")
+					InlineKeyboardButton('⬅', callback_data="p 0"),
+					InlineKeyboardButton('🔄', callback_data="p 1"),
+					InlineKeyboardButton('➡', callback_data="p 2")
 				],
 				[
-					InlineKeyboardButton('<<', callback_data="p 1"),
-					InlineKeyboardButton('>>', callback_data="p %s" % num_of_images)
+					InlineKeyboardButton('⏮', callback_data="p 1"),
+					InlineKeyboardButton('⏭', callback_data="p %s" % num_of_images)
 				]
 			]
 	reply_markup = InlineKeyboardMarkup(keyboard)
