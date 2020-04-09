@@ -2,7 +2,8 @@ from telegram.error import (TelegramError, Unauthorized, BadRequest,
                             TimedOut, ChatMigrated, NetworkError)
 from telegram.ext import (Updater, CommandHandler, MessageHandler, 
 							Filters, JobQueue, CallbackQueryHandler)
-from telegram import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton, InputMediaPhoto
+from telegram import (ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, 
+			InlineKeyboardButton, InputMediaPhoto)
 from update_stats import update_pages
 import logging, os
 
