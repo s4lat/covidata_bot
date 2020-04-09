@@ -29,6 +29,7 @@ def start(update, context):
 						['/page 1', '/page %s' % num_of_images]]
 	reply_markup = ReplyKeyboardMarkup(keyboard)
 
+	logging.info('[INFO] Start function executed successfully!')
 	return context.bot.send_message(chat_id=update.effective_chat.id, 
 		text="Use keyboard below", 
 		reply_markup=reply_markup)
@@ -39,8 +40,9 @@ def show_data(update, context):
 		n = int(msg[1])
 
 	except ValueError:
+		logging.error('[ERROR][ValueError] User send bad query: %s' % ' '.join(msg))
 		return context.bot.send_message(chat_id=update.effective_chat.id,
-			text="[ERROR] Please use buttons, not manual commands [ValueError]")
+			text="[ERROR] Please use buttons, not manual commands")
 
 	try:
 		num_of_images = len(os.listdir('./pages'))
@@ -54,12 +56,13 @@ def show_data(update, context):
 			reply_markup = ReplyKeyboardMarkup(keyboard)
 
 			return context.bot.send_photo(chat_id=update.effective_chat.id,
-			reply_markup=reply_markup,
-			photo=img)
+				reply_markup=reply_markup,
+				photo=img)
 
 	except FileNotFoundError:
+			logging.error('[ERROR][FileNotFoundError] User send wrong page number: %s' % ' '.join(msg))
 			return context.bot.send_message(chat_id=update.effective_chat.id,
-				text="[ERROR] Please use buttons, not manual commands [FileNotFoundError]")
+				text="[ERROR] Please use buttons, not manual commands")
 
 start_handler = CommandHandler('start', start)
 dispatcher.add_handler(start_handler)

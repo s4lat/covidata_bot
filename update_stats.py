@@ -1,11 +1,18 @@
 import requests as req
-import json, imgkit, os
+import json, imgkit, os, logging
+
+logging.basicConfig(filename='log.log',level=logging.INFO)
 
 with open('page.html') as f:
 		template = f.read()
 
 template = template.replace("#RESETCSS", os.path.abspath('./static/reset.css'))
 template = template.replace("#BOOTSTRAP", os.path.abspath('./static/bootstrap_4.0.0/css/bootstrap.min.css'))
+
+imgkit_options = {
+    	'quiet': '',
+    	'width': '768', 
+    	}
 
 with open('secret.token') as f:
 		TOKEN = f.read().split()[0]
@@ -72,7 +79,7 @@ def update_pages(*args):
 
 		html = html.replace('#Total', str(d['cases']['total']), 1)
 		if (i+1) % 10 == 0:
-			imgkit.from_string(html, 'pages/out%s.jpg' % c)
+			imgkit.from_string(html, 'pages/out%s.jpg' % c, options=imgkit_options)
 			html = template
 			c += 1
 
@@ -86,11 +93,8 @@ def update_pages(*args):
 		html = html.replace('[#ND]', '')
 		html = html.replace('[#NA]', '')
 
-		imgkit.from_string(html, 'pages/out%s.jpg' % c)
+		imgkit.from_string(html, 'pages/out%s.jpg' % c, options=imgkit_options)
 
-	return pages
-
-
-
+	logging.info("[INFO] Successfully updated all pages")
 
 
