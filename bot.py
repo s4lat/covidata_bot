@@ -44,7 +44,7 @@ def start(update, context):
 
 def button(update, context):
 	query = update.callback_query
-	
+
 	if query.data[0] == 'p':
 		n = int(query.data.split()[1])
 
@@ -77,6 +77,10 @@ def msgCallback(update, context):
 	return context.bot.send_message(chat_id=update.effective_chat.id, 
 		text='Type /start to use bot')
 
+def error(update, context):
+    """Log Errors caused by Updates."""
+    logging.warning('Update "%s" caused error "%s"', update, context.error)
+
 start_handler = CommandHandler('start', start)
 dispatcher.add_handler(start_handler)
 
@@ -84,6 +88,7 @@ msg_handler = MessageHandler(Filters.text, msgCallback)
 dispatcher.add_handler(msg_handler)
 
 dispatcher.add_handler(CallbackQueryHandler(button))
+dispatcher.add_error_handler(error)
 
 updater.start_polling()
 updater.idle()
