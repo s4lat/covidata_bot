@@ -11,7 +11,8 @@ template = template.replace("#BOOTSTRAP", os.path.abspath('./static/bootstrap_4.
 
 imgkit_options = {
     	'quiet': '',
-    	'width': '768', 
+    	'width': '768',
+    	"xvfb": ""
     	}
 
 with open('secret.token') as f:
