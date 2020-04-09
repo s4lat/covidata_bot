@@ -1,7 +1,8 @@
 from telegram.error import (TelegramError, Unauthorized, BadRequest, 
                             TimedOut, ChatMigrated, NetworkError)
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, JobQueue
-from telegram import ReplyKeyboardMarkup, KeyboardButton
+from telegram.ext import (Updater, CommandHandler, MessageHandler, 
+							Filters, JobQueue, CallbackQueryHandler)
+from telegram import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton, InputMediaPhoto
 from update_stats import update_pages
 import logging, os
 
@@ -19,56 +20,70 @@ jobQ.run_repeating(update_pages, interval=54000, first=0)
 jobQ.start()
 
 def start(update, context):
-	with open('./pages/out1.jpg', 'rb') as img:
-			context.bot.send_photo(chat_id=update.effective_chat.id,
-			photo=img)
-	
 	num_of_images = len(os.listdir('./pages'))
 
-	keyboard = [['/page 1', '/page 2'],
-						['/page 1', '/page %s' % num_of_images]]
-	reply_markup = ReplyKeyboardMarkup(keyboard)
+	keyboard = [
+				[
+					InlineKeyboardButton('<', callback_data="p 0"),
+					InlineKeyboardButton('0', callback_data="p 1"),
+					InlineKeyboardButton('>', callback_data="p 2")
+				],
+				[
+					InlineKeyboardButton('<<', callback_data="p 1"),
+					InlineKeyboardButton('>>', callback_data="p %s" % num_of_images)
+				]
+			]
+	reply_markup = InlineKeyboardMarkup(keyboard)
 
-	logging.info('[INFO] Start function executed successfully!')
-	return context.bot.send_message(chat_id=update.effective_chat.id, 
-		text="Use keyboard below", 
-		reply_markup=reply_markup)
+	with open('./pages/out1.jpg', 'rb') as img:
+			context.bot.send_photo(chat_id=update.effective_chat.id,
+			reply_markup=reply_markup,
+			photo=img)
 
-def show_data(update, context):
-	msg = update.message.text.split()
-	try:
-		n = int(msg[1])
+	return logging.info('[INFO] Start function executed successfully!')
 
-	except ValueError:
-		logging.error('[ERROR][ValueError] User send bad query: %s' % ' '.join(msg))
-		return context.bot.send_message(chat_id=update.effective_chat.id,
-			text="[ERROR] Please use buttons, not manual commands")
+def button(update, context):
+	query = update.callback_query
+	
+	if query.data[0] == 'p':
+		n = int(query.data.split()[1])
 
-	try:
 		num_of_images = len(os.listdir('./pages'))
 		n = 1 if n <= 0 else n
 		n = num_of_images if n > num_of_images else n
 
+		keyboard = [
+				[
+					InlineKeyboardButton('⬅', callback_data="p %s" % (n-1)),
+					InlineKeyboardButton('🔄', callback_data="p %s" % n),
+					InlineKeyboardButton('➡', callback_data="p %s" % (n+1))
+				],
+				[
+					InlineKeyboardButton('⏮', callback_data="p 1"),
+					InlineKeyboardButton('⏭', callback_data="p %s" % num_of_images)
+				]
+			]
+
+		reply_markup = InlineKeyboardMarkup(keyboard)
+
 		with open('./pages/out%s.jpg' % n, 'rb') as img:
-			keyboard = [['/page %s' % (n-1), '/page %s' % (n+1)],
-						['/page 1', '/page %s' % num_of_images]]
+			return context.bot.edit_message_media(chat_id=update.effective_chat.id,
+				message_id=query.message.message_id,
+				media=InputMediaPhoto(img),
+				reply_markup=reply_markup)
 
-			reply_markup = ReplyKeyboardMarkup(keyboard)
-
-			return context.bot.send_photo(chat_id=update.effective_chat.id,
-				reply_markup=reply_markup,
-				photo=img)
-
-	except FileNotFoundError:
-			logging.error('[ERROR][FileNotFoundError] User send wrong page number: %s' % ' '.join(msg))
-			return context.bot.send_message(chat_id=update.effective_chat.id,
-				text="[ERROR] Please use buttons, not manual commands")
+def msgCallback(update, context):
+	logging.info(update.message.text)
+	return context.bot.send_message(chat_id=update.effective_chat.id, 
+		text='Type /start to use bot')
 
 start_handler = CommandHandler('start', start)
 dispatcher.add_handler(start_handler)
 
-list_handler = CommandHandler('page', show_data)
-dispatcher.add_handler(list_handler)
+msg_handler = MessageHandler(Filters.text, msgCallback)
+dispatcher.add_handler(msg_handler)
+
+dispatcher.add_handler(CallbackQueryHandler(button))
 
 updater.start_polling()
 updater.idle()
