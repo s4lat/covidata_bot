@@ -6,7 +6,7 @@ from telegram.ext import (Updater, CommandHandler, MessageHandler,
 from telegram import (ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, 
 			InlineKeyboardButton, InputMediaPhoto)
 from update_stats import update_pages
-import logging, os
+import logging, os, db
 
 with open('secret.token', 'r') as f:
 	TOKEN = f.read().split()[1]
@@ -20,6 +20,8 @@ jobQ = JobQueue()
 jobQ.set_dispatcher(dispatcher)
 jobQ.run_repeating(update_pages, interval=1800, first=0)
 jobQ.start()
+
+dbase = db.DB('db.db')
 
 def start(update, context):
 	num_of_images = len(os.listdir('./pages'))
@@ -42,10 +44,20 @@ def start(update, context):
 			reply_markup=reply_markup,
 			photo=img)
 
-	return logging.info('[INFO] Start function executed successfully!')
+	logging.info('[INFO] Start function executed successfully by %s' %
+			update.message.from_user)
+
+	user = update.message.from_user
+
+	return dbase.create_user(user)
 
 def button(update, context):
 	query = update.callback_query
+
+	logging.info('[INFO] Button clicked by %s' % update.callback_query.from_user)
+
+	user = update.callback_query.from_user
+	dbase.update_user(user)
 
 	if query.data[0] == 'p':
 		n = int(query.data.split()[1])
@@ -84,7 +96,8 @@ def error(update, context):
     if 'Message is not modified' in str(context.error):
     	pass
     else:
-    	logging.warning('Update "%s" caused error "%s" of type "%s"', update, context.error)
+    	logging.warning('Update "%s" caused error "%s" of type "%s"', update, context.error, 
+    		type(context.error))
 
 start_handler = CommandHandler('start', start)
 dispatcher.add_handler(start_handler)
