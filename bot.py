@@ -49,15 +49,12 @@ def start(update, context):
 
 	user = update.message.from_user
 
-	return dbase.create_user(user)
+	return dbase.update_user(user)
 
 def button(update, context):
 	query = update.callback_query
 
 	logging.info('[INFO] Button clicked by %s' % update.callback_query.from_user)
-
-	user = update.callback_query.from_user
-	dbase.update_user(user)
 
 	if query.data[0] == 'p':
 		n = int(query.data.split()[1])
@@ -81,10 +78,14 @@ def button(update, context):
 		reply_markup = InlineKeyboardMarkup(keyboard)
 
 		with open('./pages/out%s.jpg' % n, 'rb') as img:
-			return context.bot.edit_message_media(chat_id=update.effective_chat.id,
+			context.bot.edit_message_media(chat_id=update.effective_chat.id,
 				message_id=query.message.message_id,
 				media=InputMediaPhoto(img),
 				reply_markup=reply_markup)
+
+		user = update.callback_query.from_user
+
+		return dbase.update_user(user)
 
 def msgCallback(update, context):
 	logging.info(update.message.text)
