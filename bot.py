@@ -18,7 +18,7 @@ dispatcher = updater.dispatcher
 
 jobQ = JobQueue()
 jobQ.set_dispatcher(dispatcher)
-jobQ.run_repeating(update_pages, interval=1800, first=0)
+jobQ.run_repeating(update_pages, interval=1800, first=1)
 jobQ.start()
 
 dbase = db.DB('db.db')

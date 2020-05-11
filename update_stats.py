@@ -27,7 +27,8 @@ headers = {
 		'x-rapidapi-key': TOKEN
 		}
 
-def get_data():
+def get_data(IGNORE_COUNTRIES=["World", "North-America", "Europe", "Asia", 
+	"South-America", "Africa", "South-Africa"]):
 	resp = req.request("GET", stats_url, headers=headers)
 	data = json.loads(resp.text)
 
@@ -35,7 +36,7 @@ def get_data():
 		resp = req.request("GET", stats_url, headers=headers)
 		data = json.loads(resp.text)
 
-	data['response'] = [d for d in data['response'] if d['country'] != 'All']
+	data['response'] = [d for d in data['response'] if d['country'] not in IGNORE_COUNTRIES]
 
 	return data['response']
 
@@ -102,4 +103,4 @@ def update_pages(*args):
 
 	logging.info("[INFO] Successfully updated all pages")
 
-
+# update_pages()
